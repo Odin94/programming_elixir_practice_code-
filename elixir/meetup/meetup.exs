@@ -13,20 +13,6 @@ defmodule Meetup do
           | :sunday
 
   @type schedule :: :first | :second | :third | :fourth | :last | :teenth
-  @month_map %{
-    january: 1,
-    february: 2,
-    march: 3,
-    april: 4,
-    march: 5,
-    june: 6,
-    july: 7,
-    august: 8,
-    september: 9,
-    october: 10,
-    november: 11,
-    december: 12
-  }
 
   @day_map %{
     1 => :monday,
@@ -50,32 +36,44 @@ defmodule Meetup do
   end
 
   def meetup(year, month, weekday, :first) do
+    day = Enum.at(matching_days(year, month, weekday), 0)
+    {year, month, day}
   end
 
   def meetup(year, month, weekday, :second) do
+    day = Enum.at(matching_days(year, month, weekday), 1)
+    {year, month, day}
   end
 
   def meetup(year, month, weekday, :third) do
+    day = Enum.at(matching_days(year, month, weekday), 2)
+    {year, month, day}
   end
 
   def meetup(year, month, weekday, :fourth) do
+    day = Enum.at(matching_days(year, month, weekday), 3)
+    {year, month, day}
   end
 
   def meetup(year, month, weekday, :last) do
+    day = Enum.at(matching_days(year, month, weekday), -1)
+    {year, month, day}
   end
 
   def days_in_month(year, month) do
-    month_num = @month_map[month]
-    Date.days_in_month(Date.new(year, month_num, 1))
+    {:ok, date} = Date.new(year, month, 1)
+    Date.days_in_month(date)
   end
 
-  # call this, then get x-th item of returned list, which is the day-date we need
-  def matching_days(year, month, weekday) do
+  def matching_days(year, month, target_weekday) do
     max_day = days_in_month(year, month)
 
     Enum.reduce(1..max_day, [], fn day, acc ->
+      {:ok, date} = Date.new(year, month, day)
+      current_weekday = Date.day_of_week(date)
+
       cond do
-        @day_map.get(Date.day_of_week(Date.new(year, month, day))) == weekday -> acc ++ day
+        Map.get(@day_map, current_weekday) == target_weekday -> acc ++ [day]
         true -> acc
       end
     end)
