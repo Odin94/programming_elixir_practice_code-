@@ -1,0 +1,2 @@
+exercism fetch [language]
+exercism submit [filename]
